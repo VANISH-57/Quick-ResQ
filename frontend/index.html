@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick-ResQ</title>
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#f5f7fa;
+}
+
+/* HEADER */
+header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 6%;
+  background:white;
+
+  box-shadow:0 2px 15px rgba(0,0,0,0.06);
+}
+header.scrolled{
+  box-shadow:0 5px 20px rgba(0,0,0,0.08);
+  transition:0.3s ease;
+}
+
+.logo-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo-icon{
+  width:45px;
+  height:45px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.logo-text{
+  font-size:22px;
+  font-weight:700;
+}
+
+.sub-text{
+  font-size:13px;
+  color:#666;
+}
+
+header button{
+  background:#222;
+  color:white;
+  padding:10px 18px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* HERO */
+.hero{
+  display:flex;
+  justify-content:space-between;
+  padding:60px 6%;
+  background:linear-gradient(90deg,#e9f1ff,#f5f7fa);
+}
+
+.hero-left{
+  width:50%;
+}
+
+.hero-left h1{
+  font-size:44px;
+  margin-bottom:20px;
+}
+
+.hero-left p{
+  font-size:18px;
+  color:#555;
+  margin-bottom:25px;
+}
+
+.location-pill{
+  background:white;
+  padding:12px 18px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+  cursor:pointer;
+  display:inline-block;
+  margin-bottom:20px;
+}
+
+/* FORM BOX */
+.form-box{
+  background:white;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.form-box select,
+.form-box input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+.form-box button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:8px;
+  border:none;
+  background:black;
+  color:white;
+  cursor:pointer;
+}
+
+/* HERO IMAGES */
+.hero-right{
+  width:45%;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:15px;
+}
+
+.hero-right img{
+  width:100%;
+  border-radius:16px;
+  object-fit:cover;
+}
+
+.hero-right .small-col{
+  display:grid;
+  gap:15px;
+}
+
+/* SERVICES */
+.services{
+  padding:60px 6%;
+}
+
+.service-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:25px;
+  margin-top:25px;
+}
+
+.service-card{
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.service-card img{
+  width:70px;
+  margin-bottom:15px;
+}
+
+/* STATS */
+.stats{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:80px;
+  margin-top:60px;
+  font-size:22px;
+}
+
+.divider{
+  width:1px;
+  height:40px;
+  background:#ccc;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-box">
+    <div class="logo-icon"></div>
+    <img src="logo.png" alt="Quick-ResQ Logo" style="width:38px;">
+    <div>
+      <div class="logo-text">Quick-ResQ</div>
+      <div class="sub-text">AI Roadside Assistance</div>
+    </div>
+  </div>
+
+  <button onclick="openMechanicWindow()">🔧 Mechanic Login</button>
+</header>
+
+<section class="hero">
+
+  <div class="hero-left">
+    <h1>Roadside assistance<br>at your location</h1>
+    <p>Fast, AI-powered mechanic assistance system.<br>Get help in minutes.</p>
+
+    <div class="location-pill" onclick="useLiveLocation()">
+      📍 Capture My Location
+    </div>
+
+    <!-- FULL WORKING USER FORM -->
+    <div class="form-box">
+
+      <select id="problem">
+        <option value="">-- Select Problem --</option>
+        <option>Puncture</option>
+        <option>Engine</option>
+        <option>Battery</option>
+        <option>Towing</option>
+      </select>
+
+      <input id="userNameInput" placeholder="Your Name">
+      <input id="userPhoneInput" placeholder="Phone Number">
+      <input id="userEmailInput" placeholder="Email Address" type="email">
+
+
+      <button onclick="submitRequest()">Request Help</button>
+
+      <p id="status"></p>
+
+      <div id="result" class="hidden">
+        <p><b>Mechanic:</b> <span id="mName"></span></p>
+        <p><b>Phone:</b> <span id="mPhone"></span></p>
+        <a id="callBtn" href="#" class="hidden">
+          <button>📞 Call Mechanic</button>
+        </a>
+        <p><b>Status:</b> <span id="jobState"></span></p>
+
+        <div id="invoiceSection"></div>
+      </div>
+
+    </div>
+  </div>
+
+<div class="hero-right">
+    <img src="mechanic-main.png" alt="Mechanic Working">
+
+    <div class="small-col">
+        <img src="mechanic-top.png" alt="Mechanic Repairing">
+        <img src="mechanic-bottom.png" alt="Mechanic Checking Engine">
+    </div>
+</div>
+ 
+</section>
+
+<section class="services">
+  <h2>What can we help you with?</h2>
+
+  <div class="service-grid">
+  <div class="service-card">
+    <img src="puncture.png" alt="Flat Tire">
+    <p>Flat Tire</p>
+  </div>
+
+  <div class="service-card">
+    <img src="battery.png" alt="Battery Jump">
+    <p>Battery Jump</p>
+  </div>
+
+  <div class="service-card">
+    <img src="engine.png" alt="Engine Issue">
+    <p>Engine Issue</p>
+  </div>
+
+  <div class="service-card">
+    <img src="towing.png" alt="Tow Service">
+    <p>Tow Service</p>
+  </div>
+
+  <div class="service-card">
+    <img src="Other service.png" alt="Other Issue">
+    <p>Other Issue</p>
+  </div>
+</div>
+
+
+  <div class="stats">
+    <div>⭐ <strong>4.8</strong> Average Rating</div>
+    <div class="divider"></div>
+    <div>👥 <strong>12M+</strong> Happy Customers Globally</div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener("scroll", function(){
+  const header = document.querySelector("header");
+  if(window.scrollY > 20){
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+});
+const statusEl=document.getElementById("status");
+const resultEl=document.getElementById("result");
+let uLat=null,uLng=null;
+
+/* ================= LOCATION ================= */
+function useLiveLocation(){
+ navigator.geolocation.getCurrentPosition(p=>{
+   uLat=p.coords.latitude;
+   uLng=p.coords.longitude;
+   statusEl.innerText="📍 Location captured";
+ });
+}
+
+/* ================= CUSTOMER REQUEST ================= */
+async function submitRequest(){
+
+ const name = userNameInput.value.trim();
+ const phone = userPhoneInput.value.trim();
+ const email = userEmailInput.value.trim();
+
+ if(!name || !phone || !email || !problem.value || !uLat)
+   return alert("Missing data");
+
+ const res = await fetch("http://localhost:5000/api/request-help",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({
+     name,
+     phone,
+     email,   // ✅ now sending email
+     problemType:problem.value,
+     lat:uLat,
+     lng:uLng
+   })
+ });
+
+ const data = await res.json();
+
+ localStorage.setItem("requestId",data.requestId);
+
+ resultEl.classList.remove("hidden");
+ mName.innerText=data.mechanic?.name||"Assigning...";
+ jobState.innerText=data.status;
+}
+
+/* ================= CUSTOMER STATUS POLLING ================= */
+setInterval(async () => {
+  const id = localStorage.getItem("requestId");
+
+  // 🛑 IMPORTANT: prevent undefined ObjectId error
+  if (!id || id === "undefined") return;
+
+  try {
+    const r = await fetch(
+      `http://localhost:5000/api/request-status/${id}`
+    );
+    const d = await r.json();
+
+    // ===== ASSIGNED =====
+    if (d.status === "assigned") {
+      jobState.innerText = "🛠 Mechanic assigned";
+      if (d.mechanic) {
+        mName.innerText = d.mechanic.name;
+        if (d.mechanic.phone) {
+          mPhone.innerText = d.mechanic.phone;
+        }
+      }
+    }
+
+    // ===== ACCEPTED =====
+    if (d.status === "accepted") {
+      jobState.innerText = "✅ Mechanic accepted";
+      if (d.mechanic) {
+        mName.innerText = d.mechanic.name;
+        if (d.mechanic.phone) {
+          mPhone.innerText = d.mechanic.phone;
+          const callBtn = document.getElementById("callBtn");
+    callBtn.href = `tel:${d.mechanic.phone}`;
+    callBtn.classList.remove("hidden");
+        }
+      }
+    }
+
+    // ===== ON THE WAY =====
+    if (d.status === "on_the_way") {
+      jobState.innerText = "🚗 Mechanic is on the way";
+    }
+
+    // ===== COMPLETED =====
+    if (d.status === "completed" && d.invoicePath) {
+  jobState.innerText = "🎉 Work completed";
+
+  document.getElementById("invoiceSection").innerHTML = `
+    <a href="http://localhost:5000${d.invoicePath}" target="_blank">
+      <button style="
+        padding:10px 20px;
+        background:#2e7d32;
+        color:white;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        margin-top:10px;
+      ">
+        Download Invoice
+      </button>
+    </a>
+  `;
+} else {
+  // 🔴 Hide invoice button in all other states
+  document.getElementById("invoiceSection").innerHTML = "";
+}
+
+    // ===== NO MECHANIC =====
+    if (d.status === "no_mechanic") {
+      jobState.innerText = "❌ No mechanic available";
+    }
+
+  } catch (err) {
+    console.error("Status polling error:", err);
+  }
+}, 3000);
+
+/* ================= MECHANIC LOGIN ================= */
+function showMechanicLogin(){
+ mechanicLogin.classList.remove("hidden");
+}
+
+async function loginMechanic(){
+ const res=await fetch("http://localhost:5000/api/mechanic/login",{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({
+     userId:mechUserId.value,
+     password:mechPassword.value
+   })
+ });
+
+ const data=await res.json();
+ if(!res.ok){
+   mechLoginStatus.innerText="❌ Login failed";
+   return;
+ }
+
+ localStorage.setItem("mechanicId",data.mechanicId);
+ mechanicDashboard.classList.remove("hidden");
+ loadMechanicDashboard();
+}
+
+/* ================= MECHANIC DASHBOARD ================= */
+async function loadMechanicDashboard(){
+ const id=localStorage.getItem("mechanicId");
+ if(!id) return;
+
+ const r=await fetch(`http://localhost:5000/api/mechanic/jobs/${id}`);
+ const jobs=await r.json();
+
+ jobList.innerHTML="";
+ if(jobs.length===0){
+   jobList.innerHTML="<p>No jobs assigned</p>";
+   return;
+ }
+
+ jobs.forEach(job=>{
+   let actions="";
+
+   if(job.status==="assigned"){
+     actions=`
+      <button onclick="updateJob('${job._id}','accepted')">Accept</button>
+      <button onclick="updateJob('${job._id}','rejected')">Reject</button>
+     `;
+   }
+
+   if(job.status==="accepted" || job.status==="on_the_way"){
+     actions=`
+      <button onclick="navigate(${job.location.lat},${job.location.lng})">🗺 Navigate</button>
+      <button onclick="updateJob('${job._id}','on_the_way')">On The Way</button>
+      <button onclick="updateJob('${job._id}','completed')">Work Done</button>
+     `;
+   }
+
+   jobList.innerHTML+=`
+    <p><b>Customer:</b> ${job.customerId.name}</p>
+    <p><b>Problem:</b> ${job.problemType}</p>
+    <p><b>Status:</b> ${job.status}</p>
+    ${actions}
+    <hr>
+   `;
+ });
+}
+
+/* ================= JOB UPDATE ================= */
+async function updateJob(id,status){
+ await fetch(`http://localhost:5000/api/mechanic/job/${id}`,{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({ status })
+ });
+ loadMechanicDashboard();
+}
+
+/* ================= MAP ================= */
+function navigate(lat,lng){
+ window.open(
+  `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+  "_blank"
+ );
+}
+
+/* auto refresh */
+setInterval(loadMechanicDashboard,5000);
+
+function openMechanicWindow(){
+  window.open(
+    "mechanic.html",
+    "_blank",
+    "width=500,height=700"
+  );
+}
+
+</script>
+
+</body>
+</html>

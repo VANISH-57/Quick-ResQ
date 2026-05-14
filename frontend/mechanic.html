@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick-ResQ – Mechanic Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#f5f7fa;
+}
+
+/* HEADER (Same as index.html) */
+header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 6%;
+  background:white;
+  box-shadow:0 2px 15px rgba(0,0,0,0.06);
+}
+
+.logo-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo-text{
+  font-size:22px;
+  font-weight:700;
+}
+
+.sub-text{
+  font-size:13px;
+  color:#666;
+}
+
+header button{
+  background:#222;
+  color:white;
+  padding:10px 18px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* MAIN SECTION */
+.section{
+  padding:60px 6%;
+}
+
+/* CARD STYLE (Same look as form-box) */
+.card{
+  background:white;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  max-width:500px;
+  margin:auto;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:8px;
+  border:none;
+  background:black;
+  color:white;
+  cursor:pointer;
+}
+
+.accept{
+  background:#198754;
+}
+
+.reject{
+  background:#d9534f;
+}
+
+hr{
+  margin:15px 0;
+}
+
+.hidden{
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="logo.png" style="width:38px;">
+    <div>
+      <div class="logo-text">Quick-ResQ</div>
+      <div class="sub-text">Mechanic Dashboard</div>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+
+<!-- LOGIN CARD -->
+<div id="loginCard" class="card">
+  <h2>🔐 Mechanic Login</h2>
+  <input id="mechUserId" placeholder="User ID">
+  <input id="mechPassword" type="password" placeholder="Password">
+  <button onclick="loginMechanic()">Login</button>
+  <p id="loginStatus"></p>
+  <p style="text-align:center;margin-top:10px;">New Mechanic?</p>
+<button onclick="showSignup()">Sign Up</button>
+</div>
+
+<!-- SIGNUP CARD -->
+<div id="signupCard" class="card hidden">
+  <h2>🧰 Mechanic Registration</h2>
+
+  <input id="signupName" placeholder="Name">
+
+  <input id="signupUserId" placeholder="User ID">
+
+  <input id="signupPhone" placeholder="Phone Number">
+
+  <input id="signupPassword" type="password" placeholder="Password">
+
+  <input id="signupSkills" placeholder="Skills (puncture,battery,engine)">
+
+  <button onclick="captureLocation()">Capture Location</button>
+  <p id="locationStatus"></p>
+
+  <button onclick="signupMechanic()">Register</button>
+  <button onclick="showLogin()" style="background:#6c757d">
+  Back to Login
+  </button>
+
+  <p id="signupStatus"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="card hidden">
+  <h2>🔧 Assigned Jobs</h2>
+  <button onclick="logoutMechanic()" style="background:#6c757d">Logout</button>
+  <div id="jobList"></div>
+</div>
+
+</section>
+
+<script>
+let mechanicId = null;
+let lat = null;
+let lng = null;
+
+async function loginMechanic(){
+  const res = await fetch("http://localhost:5000/api/mechanic/login",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      userId: document.getElementById("mechUserId").value,
+      password: document.getElementById("mechPassword").value
+    })
+  });
+
+  if(!res.ok){
+    document.getElementById("loginStatus").innerText="❌ Login failed";
+    return;
+  }
+
+  const data = await res.json();
+  mechanicId = data.mechanicId;
+
+  document.getElementById("loginCard").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+
+  loadJobs();
+}
+
+function logoutMechanic(){
+  mechanicId = null;
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("loginCard").classList.remove("hidden");
+}
+function captureLocation(){
+
+navigator.geolocation.getCurrentPosition((pos)=>{
+
+lat = pos.coords.latitude;
+lng = pos.coords.longitude;
+
+document.getElementById("locationStatus").innerText =
+"📍 Location captured";
+
+});
+
+}
+async function signupMechanic(){
+
+const res = await fetch("http://localhost:5000/api/mechanic/signup",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+
+name: document.getElementById("signupName").value,
+userId: document.getElementById("signupUserId").value,
+phone: document.getElementById("signupPhone").value,
+password: document.getElementById("signupPassword").value,
+skills: document.getElementById("signupSkills").value.split(","),
+lat,
+lng
+
+})
+});
+
+const data = await res.json();
+
+document.getElementById("signupStatus").innerText = data.message;
+if(res.ok){
+  showLogin();}
+
+}
+async function loadJobs(){
+  if(!mechanicId) return;
+
+  const res = await fetch(`http://localhost:5000/api/mechanic/jobs/${mechanicId}`);
+  if(!res.ok) return;
+
+  const jobs = await res.json();
+  const jobListEl = document.getElementById("jobList");
+
+  jobListEl.innerHTML = jobs.length === 0 ? "<p>No jobs assigned</p>" : "";
+
+  jobs.forEach(job=>{
+    let actions = job.status === "assigned" ? 
+      `<button class="accept" onclick="updateJob('${job._id}','accepted')">Accept</button>
+       <button class="reject" onclick="updateJob('${job._id}','rejected')">Reject</button>` :
+      `<button onclick="navigate(${job.location.lat},${job.location.lng})">🗺 Navigate</button>
+       <button onclick="updateJob('${job._id}','on_the_way')">On The Way</button>
+       <button onclick="updateJob('${job._id}','completed')">Work Done</button>`;
+
+    jobListEl.innerHTML += `
+      <p><b>Customer:</b> ${job.customerId.name}</p>
+      <p><b>Phone:</b> ${job.customerId.phone}</p>
+      <p><b>Problem:</b> ${job.problemType}</p>
+      <p><b>Status:</b> ${job.status}</p>
+      ${actions}
+      <hr>
+    `;
+  });
+}
+
+async function updateJob(jobId, status){
+  await fetch(`http://localhost:5000/api/mechanic/job/${jobId}`,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ status })
+  });
+  loadJobs();
+}
+
+function navigate(lat,lng){
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, "_blank");
+}
+
+setInterval(loadJobs, 5000);
+
+function showSignup(){
+
+document.getElementById("loginCard").classList.add("hidden");
+document.getElementById("signupCard").classList.remove("hidden");
+
+}
+
+function showLogin(){
+
+document.getElementById("signupCard").classList.add("hidden");
+document.getElementById("loginCard").classList.remove("hidden");
+
+}
+</script>
+
+</body>
+</html>
