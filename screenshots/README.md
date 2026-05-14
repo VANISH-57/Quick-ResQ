@@ -1,13 +1,13 @@
-## Project Screenshots
+# Project Screenshots
 
-### Home Page
-![Home Page](screenshots/project-preview-home.png)
+## Home Page
+![Home Page](project-preview-home.png)
 
-### Mechanic Dashboard
-![Mechanic Dashboard](screenshots/project-preview-mechanic-dashboard.png)
+## Mechanic Dashboard
+![Mechanic Dashboard](project-preview-mechanic-dashboard.png)
 
-### Mechanic Registration
-![Mechanic Registration](screenshots/project-preview-mechanic-registration.png)
+## Mechanic Registration
+![Mechanic Registration](project-preview-mechanic-registration.png)
 
-### MongoDB Database
-![MongoDB Database](screenshots/project-preview-mongodb-database.png)
+## MongoDB Database
+![MongoDB Database](project-preview-mongodb-database.png)
